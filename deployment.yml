@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-gorlah-com
+  namespace: default
+  labels:
+    app: react-gorlah-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-gorlah-com
+  template:
+    metadata:
+      labels:
+        app: react-gorlah-com
+    spec:
+      containers:
+        - name: react-gorlah-com
+          image: ghcr.io/gorlah/react.gorlah.com:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-gorlah-com
+  namespace: default
+spec:
+  selector:
+    app: react-gorlah-com
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: react-gorlah-com
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: react.gorlah.com
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: react-gorlah-com
+                port:
+                  number: 80
+            path: /
+  tls:
+    - hosts:
+        - react.gorlah.com
+      secretName: gorlah-com-tls-secret
